@@ -291,44 +291,81 @@ def main():
                 break
 
         done = False
-        def spin():
+        def spin(msg=''):
             for c in itertools.cycle('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'):
                 if done:
                     break
-                sys.stdout.write(f'\r  {c}')
+                sys.stdout.write(f'\r  {c} {msg}')
                 sys.stdout.flush()
                 time.sleep(0.1)
         th = threading.Thread(target=spin, daemon=True)
         th.start()
 
         try:
-            result = llm.chat_or_generate(prompt)
+            gen = llm.chat_or_generate_stream(prompt)
+            first = True
+            full_text = ''
+            result_type = 'chat'
+            result_data = None
+            is_json = False
+            for tag, value in gen:
+                if tag == 'chunk':
+                    if first:
+                        done = True
+                        sys.stdout.write('\r  ')
+                        first = False
+                    full_text += value
+                    if not is_json and (full_text.lstrip().startswith('{') or full_text.lstrip().startswith('```')):
+                        is_json = True
+                    if not is_json:
+                        sys.stdout.write(value)
+                        sys.stdout.flush()
+                elif tag == 'project':
+                    result_type = 'project'
+                    result_data = value
+                elif tag == 'chat':
+                    result_type = 'chat'
+                    result_data = value
         except Exception as e:
             done = True
             print(f'\r  {_tr("llm.failed", error=str(e))}')
             continue
 
-        done = True
-        print(f'\r  ', end='')
+        if first:
+            done = True
+            print(f'\r  ', end='')
 
-        if isinstance(result, dict) and 'sprites' in result:
-            project = build_from_llm_output(result)
+        if result_type == 'project':
+            print()
+            done2 = False
+            def spin2(msg):
+                for c in itertools.cycle('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'):
+                    if done2:
+                        break
+                    sys.stdout.write(f'\r  {c} {msg}')
+                    sys.stdout.flush()
+                    time.sleep(0.1)
+            th2 = threading.Thread(target=spin2, daemon=True)
+            th2.start()
+
+            project = build_from_llm_output(result_data)
             out = args.output
             if out == 'output.sb3':
                 safe = ''.join(c if c.isalnum() or c in ' _-' else '_' for c in prompt[:30])
                 out = f'{safe}.sb3'
+
             project.save(out)
-            print()
-            print(_tr('project.packed', path=out))
+            done2 = True
+            print(f'\r  {_tr("project.packed", path=out)}')
 
             extract_dir = pathlib.Path(out).stem
             extract_sb3(out, extract_dir)
-            print(_tr('project.extracted', path=extract_dir))
+            print(f'  {_tr("project.extracted", path=extract_dir)}')
             for f in sorted(os.listdir(extract_dir)):
                 print(f'    {extract_dir}/{f}')
         else:
             print()
-            print(result)
+            print(full_text)
 
 
 if __name__ == '__main__':

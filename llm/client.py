@@ -32,6 +32,7 @@ class LLMClient:
         self.api_key = api_key or os.getenv('LLM_API_KEY', '')
         self.base_url = (base_url or os.getenv('LLM_BASE_URL', 'https://api.openai.com/v1')).rstrip('/')
         self.model = model or os.getenv('LLM_MODEL', 'gpt-4o')
+        self._messages = []
 
     def chat(self, messages, temperature=0.7, max_tokens=4096):
         headers = {
@@ -56,7 +57,45 @@ class LLMClient:
         except (KeyError, IndexError) as e:
             raise RuntimeError(f'Unexpected API response: {resp.text[:300]}') from e
 
-    def chat_or_generate(self, prompt):
+    def chat_stream(self, messages, temperature=0.7, max_tokens=4096):
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "stream": True
+        }
+        try:
+            resp = requests.post(f"{self.base_url}/chat/completions",
+                                 headers=headers, json=payload, timeout=120, stream=True)
+            resp.raise_for_status()
+            for line in resp.iter_lines():
+                if line:
+                    line = line.decode('utf-8')
+                    if line.startswith('data: '):
+                        data = line[6:]
+                        if data == '[DONE]':
+                            break
+                        try:
+                            chunk = json.loads(data)
+                            delta = chunk['choices'][0].get('delta', {})
+                            content = delta.get('content', '')
+                            if content:
+                                yield content
+                        except json.JSONDecodeError:
+                            pass
+        except requests.exceptions.HTTPError as e:
+            detail = resp.text[:500] if 'resp' in dir() else ''
+            raise RuntimeError(f'API {resp.status_code}: {detail}') from e
+        except (KeyError, IndexError) as e:
+            raise RuntimeError(f'Unexpected API response: {resp.text[:300]}') from e
+
+    def chat_or_generate_stream(self, prompt):
+        tools_ref = _load_tools()
         system_prompt = """你是 Scratcher，一个 Scratch 项目助手。你可以：
 1. 正常对话 — 回答用户的问题、闲聊等
 2. 生成 Scratch 项目 — 当用户要求创建项目时
@@ -102,18 +141,20 @@ class LLMClient:
 - grid: {{ "type": "grid", "color1": "#hex", "color2": "#hex", "rows": 3, "cols": 4 }}
 
 以下是所有可用的 Scratch 积木块参考（来自 tools.md）：
-{tools}"""
+{tools}""".format(tools=tools_ref)
 
+        if not self._messages:
+            self._messages = [{"role": "system", "content": system_prompt}]
+        self._messages.append({"role": "user", "content": prompt})
 
-        tools_ref = _load_tools()
-        system_prompt = system_prompt.format(tools=tools_ref)
+        full = ''
+        for chunk in self.chat_stream(self._messages):
+            full += chunk
+            yield ('chunk', chunk)
 
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": prompt}
-        ]
-        response = self.chat(messages)
-        cleaned = response.strip()
+        self._messages.append({"role": "assistant", "content": full})
+
+        cleaned = full.strip()
         if cleaned.startswith('```'):
             cleaned = cleaned.split('\n', 1)[-1]
             cleaned = cleaned.rsplit('```', 1)[0]
@@ -122,7 +163,7 @@ class LLMClient:
         if cleaned.startswith('json'):
             cleaned = cleaned[4:]
         try:
-            return json.loads(cleaned.strip())
+            data = json.loads(cleaned.strip())
+            yield ('project', data)
         except json.JSONDecodeError:
-            snippet = cleaned[:200] if cleaned else '(empty)'
-            raise RuntimeError(f'Invalid JSON response: {snippet}')
+            yield ('chat', full)
