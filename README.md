@@ -93,33 +93,6 @@ model: deepseek-v4-flash
 
 Environment variables are also supported: `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL`.
 
-## Project Structure
-
-```
-Scratcher/
-├── main.py              # Entry point, CLI, pipeline orchestration
-├── svg/                 # SVG rendering engine
-│   ├── generator.py     # Shapes, gradients, filters, paths, transforms
-│   └── templates.py     # Sprite templates (circle, rect, star, arrow)
-├── scratch/             # Scratch project builder
-│   ├── project.py       # .sb3 packaging (zip + project.json + assets)
-│   ├── sprite.py        # Sprite, costume, sound models
-│   └── blocks.py        # Block builder (30+ block types)
-├── llm/                 # LLM integration
-│   └── client.py        # API client, prompt construction, response parsing
-├── editor/              # Extension system
-│   ├── manager.py       # Extension scanner, merger, lifecycle
-│   ├── ui.py            # Terminal UI for extension management
-│   └── *.editor         # Extension packages (zip with pack.json + tools.md)
-├── agent/
-│   └── tools.md         # Scratch block reference (fed to LLM as context)
-├── i18n/                # Internationalization
-│   ├── zh.json          # Chinese
-│   └── en.json          # English
-├── config.yaml          # LLM API configuration (gitignored)
-└── requirements.txt     # Python dependencies
-```
-
 ## Extension System
 
 Extensions (`.editor` files) are zip archives containing:

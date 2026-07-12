@@ -93,33 +93,6 @@ model: deepseek-v4-flash
 
 也支持环境变量：`LLM_API_KEY`、`LLM_BASE_URL`、`LLM_MODEL`。
 
-## 项目结构
-
-```
-Scratcher/
-├── main.py              # 入口，CLI，流程编排
-├── svg/                 # SVG 渲染引擎
-│   ├── generator.py     # 形状、渐变、滤镜、路径、变换
-│   └── templates.py     # 精灵模板（圆形、矩形、星形、箭头）
-├── scratch/             # Scratch 项目构建
-│   ├── project.py       # .sb3 打包（zip + project.json + 资源）
-│   ├── sprite.py        # 精灵、造型、声音模型
-│   └── blocks.py        # 积木块构建器（30+ 种积木类型）
-├── llm/                 # LLM 集成
-│   └── client.py        # API 客户端、提示构建、响应解析
-├── editor/              # 扩展系统
-│   ├── manager.py       # 扩展扫描、合并、生命周期管理
-│   ├── ui.py            # 终端管理界面
-│   └── *.editor         # 扩展包（zip，含 pack.json + tools.md）
-├── agent/
-│   └── tools.md         # Scratch 积木参考表（作为上下文提供给 LLM）
-├── i18n/                # 国际化
-│   ├── zh.json          # 中文
-│   └── en.json          # 英文
-├── config.yaml          # LLM API 配置（已被 gitignore）
-└── requirements.txt     # Python 依赖
-```
-
 ## 扩展系统
 
 扩展（`.editor` 文件）是 zip 归档包，包含：
