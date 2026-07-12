@@ -348,14 +348,10 @@ def main():
             print(f'\r  ', end='')
 
         if result_type == 'project':
-            lines = full_text.split('```')
-            explanation = lines[0].strip()
-            if explanation:
-                if not first:
-                    print()
-                print(explanation)
+            if not first:
+                print()
             done2 = False
-            def spin2(msg):
+            def spin2(msg=''):
                 for c in itertools.cycle('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'):
                     if done2:
                         break
