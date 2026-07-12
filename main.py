@@ -297,9 +297,6 @@ def main():
 
     done = True
     print(f'\r  ', end='')
-    print()
-    print(f'{_tr("llm.structure")}:')
-    print(json.dumps(data, ensure_ascii=False, indent=2))
 
     project = build_from_llm_output(data)
     project.save(args.output)
