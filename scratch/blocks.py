@@ -22,7 +22,7 @@ class BlockBuilder:
             "opcode": "motion_movesteps",
             "next": None,
             "parent": parent_id,
-            "inputs": {"STEPS": [4, [4, steps]]},
+            "inputs": {"STEPS": [1, steps]},
             "fields": {},
             "shadow": False,
             "topLevel": parent_id is None,
@@ -35,7 +35,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "motion_turnright",
             "next": None, "parent": parent_id,
-            "inputs": {"DEGREES": [4, [4, degrees]]},
+            "inputs": {"DEGREES": [1, degrees]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -46,7 +46,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "motion_turnleft",
             "next": None, "parent": parent_id,
-            "inputs": {"DEGREES": [4, [4, degrees]]},
+            "inputs": {"DEGREES": [1, degrees]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -57,7 +57,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "motion_gotoxy",
             "next": None, "parent": parent_id,
-            "inputs": {"X": [4, [4, x]], "Y": [4, [4, y]]},
+            "inputs": {"X": [1, x], "Y": [1, y]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -79,7 +79,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "motion_changexby",
             "next": None, "parent": parent_id,
-            "inputs": {"DX": [4, [4, dx]]},
+            "inputs": {"DX": [1, dx]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -90,7 +90,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "motion_changeyby",
             "next": None, "parent": parent_id,
-            "inputs": {"DY": [4, [4, dy]]},
+            "inputs": {"DY": [1, dy]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -101,7 +101,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "motion_setx",
             "next": None, "parent": parent_id,
-            "inputs": {"X": [4, [4, x]]},
+            "inputs": {"X": [1, x]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -112,7 +112,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "motion_sety",
             "next": None, "parent": parent_id,
-            "inputs": {"Y": [4, [4, y]]},
+            "inputs": {"Y": [1, y]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -175,7 +175,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "looks_setsizeto",
             "next": None, "parent": parent_id,
-            "inputs": {"SIZE": [4, [4, size]]},
+            "inputs": {"SIZE": [1, size]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -186,7 +186,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "looks_changesizeby",
             "next": None, "parent": parent_id,
-            "inputs": {"CHANGE": [4, [4, change]]},
+            "inputs": {"CHANGE": [1, change]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -229,7 +229,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "control_wait",
             "next": None, "parent": parent_id,
-            "inputs": {"DURATION": [4, [4, secs]]},
+            "inputs": {"DURATION": [1, secs]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
