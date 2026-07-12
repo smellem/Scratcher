@@ -68,6 +68,8 @@ def build_from_llm_output(data):
                 bid = bb.motion_turnright(script.get('degrees', 15))
             elif opcode == 'motion_turnleft':
                 bid = bb.motion_turnleft(script.get('degrees', 15))
+            elif opcode == 'motion_goto':
+                bid = bb.motion_goto(script.get('target', '_mouse_'))
             elif opcode == 'motion_gotoxy':
                 bid = bb.motion_gotoxy(script.get('x', 0), script.get('y', 0))
             elif opcode == 'motion_changexby':
@@ -270,11 +272,12 @@ def main():
 
     prompt = ' '.join(args.prompt) if args.prompt else ''
     model_name = llm.model if hasattr(llm, 'model') else '?'
+    workdir = os.getcwd()
     if not prompt:
         print()
-        prompt = input(f'Build-{model_name}> ').strip()
+        prompt = input(f'Build-{model_name}-{workdir}> ').strip()
         while not prompt:
-            prompt = input(f'Build-{model_name}> ').strip()
+            prompt = input(f'Build-{model_name}-{workdir}> ').strip()
 
     import itertools, threading, time, sys
     done = False
@@ -289,7 +292,7 @@ def main():
     th.start()
 
     try:
-        data = llm.generate_project(prompt)
+        result = llm.chat_or_generate(prompt)
     except Exception as e:
         done = True
         print(f'\r  {_tr("llm.failed", error=str(e))}')
@@ -298,16 +301,24 @@ def main():
     done = True
     print(f'\r  ', end='')
 
-    project = build_from_llm_output(data)
-    project.save(args.output)
-    print()
-    print(_tr('project.packed', path=args.output))
+    if isinstance(result, dict) and 'sprites' in result:
+        project = build_from_llm_output(result)
+        out = args.output
+        if out == 'output.sb3':
+            safe = ''.join(c if c.isalnum() or c in ' _-' else '_' for c in prompt[:30])
+            out = f'{safe}.sb3'
+        project.save(out)
+        print()
+        print(_tr('project.packed', path=out))
 
-    extract_dir = pathlib.Path(args.output).stem
-    extract_sb3(args.output, extract_dir)
-    print(_tr('project.extracted', path=extract_dir))
-    for f in sorted(os.listdir(extract_dir)):
-        print(f'    {extract_dir}/{f}')
+        extract_dir = pathlib.Path(out).stem
+        extract_sb3(out, extract_dir)
+        print(_tr('project.extracted', path=extract_dir))
+        for f in sorted(os.listdir(extract_dir)):
+            print(f'    {extract_dir}/{f}')
+    else:
+        print()
+        print(result)
 
 
 if __name__ == '__main__':

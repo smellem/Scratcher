@@ -56,11 +56,16 @@ class LLMClient:
         except (KeyError, IndexError) as e:
             raise RuntimeError(f'Unexpected API response: {resp.text[:300]}') from e
 
-    def generate_project(self, prompt):
-        system_prompt = """你是一个 Scratch 项目生成器。根据用户的自然语言描述，生成一个完整的 Scratch 3.0 项目。
+    def chat_or_generate(self, prompt):
+        system_prompt = """你是 Scratcher，一个 Scratch 项目助手。你可以：
+1. 正常对话 — 回答用户的问题、闲聊等
+2. 生成 Scratch 项目 — 当用户要求创建项目时
 
-请严格按照以下 JSON 格式输出（不要包含 markdown 代码块标记）：
+如果用户要求创建 Scratch 项目，请输出一个 JSON 项目结构，并用 ```json ... ``` 代码块包裹。
+如果只是普通对话，直接回复文本即可。
 
+项目 JSON 格式示例：
+```json
 {{
   "sprites": [
     {{

@@ -68,7 +68,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "motion_goto",
             "next": None, "parent": parent_id,
-            "inputs": {"TO": [10, target]},
+            "inputs": {"TO": [1, target]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -133,7 +133,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "looks_say",
             "next": None, "parent": parent_id,
-            "inputs": {"MESSAGE": [10, message]},
+            "inputs": {"MESSAGE": [1, message]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -164,7 +164,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "looks_switchcostumeto",
             "next": None, "parent": parent_id,
-            "inputs": {"COSTUME": [10, costume]},
+            "inputs": {"COSTUME": [1, costume]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -207,7 +207,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "event_whenkeypressed",
             "next": None, "parent": parent_id,
-            "inputs": {"KEY_OPTION": [10, key]},
+            "inputs": {"KEY_OPTION": [1, key]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -218,7 +218,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "event_broadcast",
             "next": None, "parent": parent_id,
-            "inputs": {"BROADCAST_INPUT": [10, message]},
+            "inputs": {"BROADCAST_INPUT": [1, message]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -263,7 +263,7 @@ class BlockBuilder:
             "opcode": "control_if",
             "next": None, "parent": parent_id,
             "inputs": {
-                "CONDITION": [10, condition],
+                "CONDITION": [1, condition],
                 "SUBSTACK": [2, substack_id] if substack_id else [2, []]
             },
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
@@ -276,7 +276,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "control_wait_until",
             "next": None, "parent": parent_id,
-            "inputs": {"CONDITION": [10, condition]},
+            "inputs": {"CONDITION": [1, condition]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -287,7 +287,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "sensing_touchingobject",
             "next": None, "parent": parent_id,
-            "inputs": {"TOUCHINGOBJECTMENU": [10, target]},
+            "inputs": {"TOUCHINGOBJECTMENU": [1, target]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -366,7 +366,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "twsettings_setInterpolation",
             "next": None, "parent": parent_id,
-            "inputs": {"MODE": [10, mode]},
+            "inputs": {"MODE": [1, mode]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -377,7 +377,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "twsettings_setStageSize",
             "next": None, "parent": parent_id,
-            "inputs": {"SIZE": [10, size]},
+            "inputs": {"SIZE": [1, size]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -388,7 +388,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "twsettings_setHighQualityPen",
             "next": None, "parent": parent_id,
-            "inputs": {"MODE": [10, mode]},
+            "inputs": {"MODE": [1, mode]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -420,7 +420,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "twsettings_setDragMode",
             "next": None, "parent": parent_id,
-            "inputs": {"MODE": [10, mode]},
+            "inputs": {"MODE": [1, mode]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
