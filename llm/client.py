@@ -136,9 +136,43 @@ class LLMClient:
 - star: {{ "type": "star", "color": "#hex", "size": 60 }}
 - arrow: {{ "type": "arrow", "color": "#hex", "size": 50, "direction": "right" }}
 
-支持的 backdrop 类型:
+    支持的 backdrop 类型:
 - color: {{ "type": "color", "color": "#hex" }}
 - grid: {{ "type": "grid", "color1": "#hex", "color2": "#hex", "rows": 3, "cols": 4 }}
+
+支持的 opcode 列表（只能使用以下 opcode，不要使用未列出的）：
+- event_whenflagclicked: 无参数
+- event_whenkeypressed: key (string)
+- event_broadcast: message (string)
+- motion_movesteps: steps (number)
+- motion_turnright: degrees (number)
+- motion_turnleft: degrees (number)
+- motion_goto: target (string, e.g. "_mouse_" or "_random_")
+- motion_gotoxy: x (number), y (number)
+- motion_changexby: dx (number)
+- motion_changeyby: dy (number)
+- motion_setx: x (number)
+- motion_sety: y (number)
+- motion_ifonedgebounce: 无参数
+- looks_say: message (string)
+- looks_show: 无参数
+- looks_hide: 无参数
+- looks_switchcostumeto: costume (string)
+- looks_setsizeto: size (number)
+- looks_changesizeby: change (number)
+- control_wait: secs (number)
+- control_repeat: times (number), script (array of opcode objects)
+- control_forever: script (array of opcode objects)
+- control_if: condition (boolean), script (array of opcode objects)
+- control_wait_until: condition (boolean)
+- sensing_touchingobject: target (string)
+- operator_add: num1 (number), num2 (number)
+- operator_subtract: num1 (number), num2 (number)
+- operator_random: from (number), to (number)
+- data_setvariableto: var (string), value (number)
+- data_changevariableby: var (string), value (number)
+
+注意：不支持 variables_get、variables_set、operator_lt、operator_div、operator_mult、motion_xposition 等。scripts 数组中的每个对象只能包含 opcode 和它的参数，不支持嵌套条件表达式。
 
 以下是所有可用的 Scratch 积木块参考（来自 tools.md）：
 {tools}""".format(tools=tools_ref)

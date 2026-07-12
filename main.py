@@ -73,9 +73,9 @@ def build_from_llm_output(data):
             elif opcode == 'motion_gotoxy':
                 bid = bb.motion_gotoxy(script.get('x', 0), script.get('y', 0))
             elif opcode == 'motion_changexby':
-                bid = bb.motion_changexby(script.get('dx', 10))
+                bid = bb.motion_changexby(script.get('dx', script.get('num', 10)))
             elif opcode == 'motion_changeyby':
-                bid = bb.motion_changeyby(script.get('dy', 10))
+                bid = bb.motion_changeyby(script.get('dy', script.get('num', 10)))
             elif opcode == 'motion_setx':
                 bid = bb.motion_setx(script.get('x', 0))
             elif opcode == 'motion_sety':
