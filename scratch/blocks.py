@@ -240,7 +240,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "control_repeat",
             "next": None, "parent": parent_id,
-            "inputs": {"TIMES": [1, str(times)], "SUBSTACK": [2, substack_id] if substack_id else [2, []]},
+            "inputs": {"TIMES": [1, str(times)], "SUBSTACK": [2, substack_id] if substack_id else [2, None]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -251,7 +251,7 @@ class BlockBuilder:
         self.blocks[bid] = {
             "opcode": "control_forever",
             "next": None, "parent": parent_id,
-            "inputs": {"SUBSTACK": [2, substack_id] if substack_id else [2, []]},
+            "inputs": {"SUBSTACK": [2, substack_id] if substack_id else [2, None]},
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
         }
@@ -264,7 +264,7 @@ class BlockBuilder:
             "next": None, "parent": parent_id,
             "inputs": {
                 "CONDITION": [1, condition],
-                "SUBSTACK": [2, substack_id] if substack_id else [2, []]
+                "SUBSTACK": [2, substack_id] if substack_id else [2, None]
             },
             "fields": {}, "shadow": False, "topLevel": parent_id is None,
             "x": 0, "y": 0
