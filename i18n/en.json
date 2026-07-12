@@ -12,6 +12,9 @@
   "app.config.save": "Save config? (y/n)",
   "app.config.saved": "Config saved to {path}",
   "app.config.loaded": "Config loaded: {url} / {model}",
+  "app.lang.select": "Select language (1: 中文, 2: English)",
+  "app.lang.en": "English",
+  "app.lang.zh": "中文",
 
   "editor.title": "Editor Manager",
   "editor.empty": "No extensions installed",

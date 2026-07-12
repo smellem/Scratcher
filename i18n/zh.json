@@ -12,6 +12,9 @@
   "app.config.save": "是否保存配置？(y/n)",
   "app.config.saved": "配置已保存到 {path}",
   "app.config.loaded": "已加载配置: {url} / {model}",
+  "app.lang.select": "选择语言 (1: 中文, 2: English)",
+  "app.lang.en": "English",
+  "app.lang.zh": "中文",
 
   "editor.title": "编辑器管理",
   "editor.empty": "未安装任何扩展",

@@ -146,6 +146,15 @@ def build_from_llm_output(data):
 
 def interactive_setup(t):
     print(f'=== {t("app.title")} {t("app.init")} ===')
+    print(f'1. {t("app.lang.zh")}')
+    print(f'2. {t("app.lang.en")}')
+    lang_choice = input(f'{t("app.lang.select")}: ').strip()
+    if lang_choice == '2':
+        t = get_t('en')
+    else:
+        t = get_t('zh')
+
+    print()
     print(t('app.no_api'))
     print()
 
@@ -248,19 +257,22 @@ def main():
     has_config = os.path.exists('config.yaml')
     if not has_api and has_config:
         with open('config.yaml', 'r', encoding='utf-8') as f:
-            cfg = yaml.safe_load(f)
-        base_url = cfg.get('base_url', '')
-        model = cfg.get('model', '')
-        if base_url == 'https://api.deepseek.com/v1':
-            base_url = 'https://api.deepseek.com'
-        if model == 'deepseek-v4-flash':
-            model = 'deepseek-chat'
-        cfg['base_url'] = base_url
-        cfg['model'] = model
-        with open('config.yaml', 'w', encoding='utf-8') as f:
-            yaml.dump(cfg, f, allow_unicode=True, default_flow_style=False)
-        llm = LLMClient(api_key=cfg.get('api_key'), base_url=base_url, model=model)
-        print(_tr('app.config.loaded', url=base_url, model=model))
+            cfg = yaml.safe_load(f) or {}
+        if cfg.get('api_key'):
+            base_url = cfg.get('base_url', '')
+            model = cfg.get('model', '')
+            if base_url == 'https://api.deepseek.com/v1':
+                base_url = 'https://api.deepseek.com'
+            if model == 'deepseek-v4-flash':
+                model = 'deepseek-chat'
+            cfg['base_url'] = base_url
+            cfg['model'] = model
+            with open('config.yaml', 'w', encoding='utf-8') as f:
+                yaml.dump(cfg, f, allow_unicode=True, default_flow_style=False)
+            llm = LLMClient(api_key=cfg['api_key'], base_url=base_url, model=model)
+            print(_tr('app.config.loaded', url=base_url, model=model))
+        else:
+            llm = interactive_setup(_tr)
     elif not has_api:
         llm = interactive_setup(_tr)
     else:
