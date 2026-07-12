@@ -269,20 +269,20 @@ def main():
         )
 
     prompt = ' '.join(args.prompt) if args.prompt else ''
+    model_name = llm.model if hasattr(llm, 'model') else '?'
     if not prompt:
         print()
-        prompt = input(f'{_tr("llm.prompt")}: ').strip()
+        prompt = input(f'Build-{model_name}> ').strip()
         while not prompt:
-            prompt = input(f'{_tr("llm.prompt.empty")}: ').strip()
+            prompt = input(f'Build-{model_name}> ').strip()
 
-    print()
     import itertools, threading, time, sys
     done = False
     def spin():
         for c in itertools.cycle('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'):
             if done:
                 break
-            sys.stdout.write(f'\r  {c} {_tr("llm.thinking")}')
+            sys.stdout.write(f'\r  {c}')
             sys.stdout.flush()
             time.sleep(0.1)
     th = threading.Thread(target=spin, daemon=True)
@@ -296,7 +296,7 @@ def main():
         return
 
     done = True
-    print(f'\r  {_tr("llm.done")}')
+    print(f'\r  ', end='')
     print()
     print(f'{_tr("llm.structure")}:')
     print(json.dumps(data, ensure_ascii=False, indent=2))

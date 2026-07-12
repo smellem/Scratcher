@@ -44,10 +44,17 @@ class LLMClient:
             "temperature": temperature,
             "max_tokens": max_tokens
         }
-        resp = requests.post(f"{self.base_url}/chat/completions",
-                             headers=headers, json=payload, timeout=120)
-        resp.raise_for_status()
-        return resp.json()["choices"][0]["message"]["content"]
+        try:
+            resp = requests.post(f"{self.base_url}/chat/completions",
+                                 headers=headers, json=payload, timeout=120)
+            resp.raise_for_status()
+            result = resp.json()
+            return result["choices"][0]["message"]["content"]
+        except requests.exceptions.HTTPError as e:
+            detail = resp.text[:500] if 'resp' in dir() else ''
+            raise RuntimeError(f'API {resp.status_code}: {detail}') from e
+        except (KeyError, IndexError) as e:
+            raise RuntimeError(f'Unexpected API response: {resp.text[:300]}') from e
 
     def generate_project(self, prompt):
         system_prompt = """你是一个 Scratch 项目生成器。根据用户的自然语言描述，生成一个完整的 Scratch 3.0 项目。
@@ -105,6 +112,12 @@ class LLMClient:
         if cleaned.startswith('```'):
             cleaned = cleaned.split('\n', 1)[-1]
             cleaned = cleaned.rsplit('```', 1)[0]
+            if cleaned.startswith('json'):
+                cleaned = cleaned[4:]
         if cleaned.startswith('json'):
             cleaned = cleaned[4:]
-        return json.loads(cleaned.strip())
+        try:
+            return json.loads(cleaned.strip())
+        except json.JSONDecodeError:
+            snippet = cleaned[:200] if cleaned else '(empty)'
+            raise RuntimeError(f'Invalid JSON response: {snippet}')
