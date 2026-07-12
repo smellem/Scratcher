@@ -270,55 +270,65 @@ def main():
             model=args.model
         )
 
-    prompt = ' '.join(args.prompt) if args.prompt else ''
     model_name = llm.model if hasattr(llm, 'model') else '?'
     workdir = os.getcwd()
-    if not prompt:
-        print()
-        prompt = input(f'Build-{model_name}-{workdir}> ').strip()
-        while not prompt:
-            prompt = input(f'Build-{model_name}-{workdir}> ').strip()
+    prompt_queue = ' '.join(args.prompt) if args.prompt else ''
 
     import itertools, threading, time, sys
-    done = False
-    def spin():
-        for c in itertools.cycle('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'):
-            if done:
+
+    while True:
+        if prompt_queue:
+            prompt = prompt_queue
+            prompt_queue = ''
+        else:
+            print()
+            prompt = input(f'Build-{model_name}-{workdir}> ').strip()
+            if prompt.lower() in ('exit', 'quit', 'q'):
                 break
-            sys.stdout.write(f'\r  {c}')
-            sys.stdout.flush()
-            time.sleep(0.1)
-    th = threading.Thread(target=spin, daemon=True)
-    th.start()
+            while not prompt:
+                prompt = input(f'Build-{model_name}-{workdir}> ').strip()
+            if prompt.lower() in ('exit', 'quit', 'q'):
+                break
 
-    try:
-        result = llm.chat_or_generate(prompt)
-    except Exception as e:
+        done = False
+        def spin():
+            for c in itertools.cycle('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'):
+                if done:
+                    break
+                sys.stdout.write(f'\r  {c}')
+                sys.stdout.flush()
+                time.sleep(0.1)
+        th = threading.Thread(target=spin, daemon=True)
+        th.start()
+
+        try:
+            result = llm.chat_or_generate(prompt)
+        except Exception as e:
+            done = True
+            print(f'\r  {_tr("llm.failed", error=str(e))}')
+            continue
+
         done = True
-        print(f'\r  {_tr("llm.failed", error=str(e))}')
-        return
+        print(f'\r  ', end='')
 
-    done = True
-    print(f'\r  ', end='')
+        if isinstance(result, dict) and 'sprites' in result:
+            project = build_from_llm_output(result)
+            out = args.output
+            if out == 'output.sb3':
+                safe = ''.join(c if c.isalnum() or c in ' _-' else '_' for c in prompt[:30])
+                out = f'{safe}.sb3'
+            project.save(out)
+            print()
+            print(_tr('project.packed', path=out))
 
-    if isinstance(result, dict) and 'sprites' in result:
-        project = build_from_llm_output(result)
-        out = args.output
-        if out == 'output.sb3':
-            safe = ''.join(c if c.isalnum() or c in ' _-' else '_' for c in prompt[:30])
-            out = f'{safe}.sb3'
-        project.save(out)
-        print()
-        print(_tr('project.packed', path=out))
-
-        extract_dir = pathlib.Path(out).stem
-        extract_sb3(out, extract_dir)
-        print(_tr('project.extracted', path=extract_dir))
-        for f in sorted(os.listdir(extract_dir)):
-            print(f'    {extract_dir}/{f}')
-    else:
-        print()
-        print(result)
+            extract_dir = pathlib.Path(out).stem
+            extract_sb3(out, extract_dir)
+            print(_tr('project.extracted', path=extract_dir))
+            for f in sorted(os.listdir(extract_dir)):
+                print(f'    {extract_dir}/{f}')
+        else:
+            print()
+            print(result)
 
 
 if __name__ == '__main__':
