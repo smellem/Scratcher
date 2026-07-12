@@ -1,53 +1,89 @@
 # Scratcher
 
-通过自然语言描述生成 Scratch 3.0 项目（.sb3）的命令行工具，支持 LLM 驱动和扩展系统。
+[中文](README.zh.md)
 
-## 安装
+Generate Scratch 3.0 projects (.sb3) from natural language descriptions via LLM.
+
+## How It Works
+
+```
+User Prompt → LLM → Structured JSON → SVG + Blocks → .sb3 (zip) + Extracted Directory
+```
+
+**Pipeline:**
+
+1. **Prompt** — User describes the desired Scratch project in natural language (e.g. "a red cat that moves 10 steps when the flag is clicked")
+2. **LLM Parsing** — The LLM receives the prompt along with the full block reference (`agent/tools.md`) and outputs a structured JSON describing sprites, costumes, backdrops, and scripts
+3. **Asset Generation** — SVG costumes are generated from templates (circle, rect, star, arrow) or custom specifications
+4. **Script Building** — Scratch blocks are constructed from the parsed JSON and linked into execution chains
+5. **Packaging** — The project is saved as `.sb3` (a standard Scratch 3.0 zip archive) and extracted to a editable directory
+
+## Installation
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 快速开始
+## Usage
+
+### Interactive Mode
 
 ```bash
-# 交互模式（首次运行会引导设置 API）
 python main.py
-
-# 直接指定描述
-python main.py "创建一个红色的小猫，点击绿旗后向右移动 50 步"
-
-# 生成测试项目（不调用 LLM）
-python main.py --no-llm -o demo.sb3
-
-# 指定语言
-python main.py --lang en "create a cat that moves 10 steps"
 ```
 
-## 功能
+On first run, you will be prompted to configure an LLM API:
 
-- **LLM 驱动**：接入大模型，用自然语言描述生成完整项目
-- **SVG 生成**：支持圆形、矩形、星形、箭头等精灵模板
-- **积木系统**：30+ 种 Scratch 积木块（运动/外观/事件/控制/侦测/运算/变量）
-- **扩展系统**：`.editor` 插件包，支持 TurboWarp 扩展
-- **打包/解包**：同时输出 `.sb3` 文件和可编辑的解包目录
-- **i18n**：支持中英文界面
+```text
+=== Scratcher Initialization ===
+No API configured. Please set up the following:
 
-## 编辑器扩展管理
+API Key: sk-xxx
+
+Select API provider:
+  1. OpenAI          (https://api.openai.com/v1)
+  2. DeepSeek        (https://api.deepseek.com)
+  3. 通义千问        (https://dashscope.aliyuncs.com/compatible-mode/v1)
+  4. Custom URL
+Choose (1-4): 2
+Save config? (y/n): y
+Config saved to config.yaml
+```
+
+After setup, describe your project:
+
+```text
+Describe the Scratch project you want to generate: a blue cat that spins when clicked
+```
+
+### Direct Prompt
+
+```bash
+python main.py "a red square that moves to x:100 y:100 when space is pressed"
+```
+
+### Test Project (No LLM)
+
+```bash
+python main.py --no-llm -o demo.sb3
+```
+
+### Language Selection
+
+```bash
+python main.py --lang en "create a bouncing ball"
+python main.py --lang zh "创建一个弹跳的小球"
+```
+
+### Extension Manager
 
 ```bash
 python main.py --editors
 ```
 
-在管理界面中可以：
-- 启用/禁用扩展
-- 安装 `.editor` 插件包
-- 导出 TurboWarp 扩展（`.js`）
-- 合并扩展积木到 `tools.md`
+## Configuration
 
-## 配置文件
-
-`config.yaml` 保存 LLM API 配置，支持自定义供应商：
+`config.yaml` stores your LLM API configuration:
 
 ```yaml
 api_key: sk-xxx
@@ -55,30 +91,56 @@ base_url: https://api.deepseek.com
 model: deepseek-v4-flash
 ```
 
-支持的环境变量：`LLM_API_KEY`、`LLM_BASE_URL`、`LLM_MODEL`
+Environment variables are also supported: `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL`.
 
-## 项目结构
+## Project Structure
 
 ```
 Scratcher/
-├── main.py              # 入口
-├── svg/                 # SVG 生成引擎
-├── scratch/             # Scratch 项目构建
-│   ├── project.py       # .sb3 打包
-│   ├── sprite.py        # 精灵/造型
-│   └── blocks.py        # 积木块构建
-├── llm/                 # LLM 集成
-├── editor/              # 扩展系统
-│   ├── manager.py       # 扩展管理器
-│   ├── ui.py            # 终端界面
-│   └── *.editor         # 扩展包
+├── main.py              # Entry point, CLI, pipeline orchestration
+├── svg/                 # SVG rendering engine
+│   ├── generator.py     # Shapes, gradients, filters, paths, transforms
+│   └── templates.py     # Sprite templates (circle, rect, star, arrow)
+├── scratch/             # Scratch project builder
+│   ├── project.py       # .sb3 packaging (zip + project.json + assets)
+│   ├── sprite.py        # Sprite, costume, sound models
+│   └── blocks.py        # Block builder (30+ block types)
+├── llm/                 # LLM integration
+│   └── client.py        # API client, prompt construction, response parsing
+├── editor/              # Extension system
+│   ├── manager.py       # Extension scanner, merger, lifecycle
+│   ├── ui.py            # Terminal UI for extension management
+│   └── *.editor         # Extension packages (zip with pack.json + tools.md)
 ├── agent/
-│   └── tools.md         # 积木参考表
-└── i18n/                # 国际化
-    ├── zh.json
-    └── en.json
+│   └── tools.md         # Scratch block reference (fed to LLM as context)
+├── i18n/                # Internationalization
+│   ├── zh.json          # Chinese
+│   └── en.json          # English
+├── config.yaml          # LLM API configuration (gitignored)
+└── requirements.txt     # Python dependencies
 ```
 
-## 许可
+## Extension System
+
+Extensions (`.editor` files) are zip archives containing:
+
+- `pack.json` — metadata (name, version, author, enabled state)
+- `agent/tools.md` — additional Scratch blocks to merge into the reference
+- (optional) Extension scripts for TurboWarp
+
+Run `python main.py --editors` to manage extensions: enable/disable, install, export.
+
+### Available Extensions
+
+| Extension | Description |
+|-----------|-------------|
+| `motion-plus.editor` | Additional motion and looks blocks |
+| `tw-settings.editor` | TurboWarp advanced settings (framerate, interpolation, pen quality, clone limit) |
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
+
+## License
 
 MIT
