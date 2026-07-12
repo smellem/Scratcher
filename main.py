@@ -163,7 +163,7 @@ def interactive_setup(t):
 
     providers = {
         '1': ('https://api.openai.com/v1', 'gpt-4o'),
-        '2': ('https://api.deepseek.com', 'deepseek-v4-flash'),
+        '2': ('https://api.deepseek.com', 'deepseek-chat'),
         '3': ('https://dashscope.aliyuncs.com/compatible-mode/v1', 'qwen-plus'),
     }
 
@@ -253,8 +253,8 @@ def main():
         model = cfg.get('model', '')
         if base_url == 'https://api.deepseek.com/v1':
             base_url = 'https://api.deepseek.com'
-        if model == 'deepseek-chat':
-            model = 'deepseek-v4-flash'
+        if model == 'deepseek-v4-flash':
+            model = 'deepseek-chat'
         cfg['base_url'] = base_url
         cfg['model'] = model
         with open('config.yaml', 'w', encoding='utf-8') as f:
