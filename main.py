@@ -348,8 +348,12 @@ def main():
             print(f'\r  ', end='')
 
         if result_type == 'project':
-            if not first:
-                print()
+            lines = full_text.split('```')
+            explanation = lines[0].strip()
+            if explanation:
+                if not first:
+                    print()
+                print(explanation)
             done2 = False
             def spin2(msg):
                 for c in itertools.cycle('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'):
