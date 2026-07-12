@@ -315,7 +315,7 @@ def main():
                         sys.stdout.write('\r  ')
                         first = False
                     full_text += value
-                    if not is_json and (full_text.lstrip().startswith('{') or full_text.lstrip().startswith('```')):
+                    if not is_json and ('```' in full_text or full_text.lstrip().startswith('{')):
                         is_json = True
                     if not is_json:
                         sys.stdout.write(value)
@@ -336,7 +336,8 @@ def main():
             print(f'\r  ', end='')
 
         if result_type == 'project':
-            print()
+            if not first:
+                print()
             done2 = False
             def spin2(msg):
                 for c in itertools.cycle('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'):

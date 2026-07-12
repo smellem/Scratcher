@@ -155,15 +155,20 @@ class LLMClient:
         self._messages.append({"role": "assistant", "content": full})
 
         cleaned = full.strip()
-        if cleaned.startswith('```'):
-            cleaned = cleaned.split('\n', 1)[-1]
-            cleaned = cleaned.rsplit('```', 1)[0]
-            if cleaned.startswith('json'):
-                cleaned = cleaned[4:]
-        if cleaned.startswith('json'):
-            cleaned = cleaned[4:]
+        if '```' in cleaned:
+            parts = cleaned.split('```')
+            for i, part in enumerate(parts):
+                p = part.strip()
+                if p.startswith('json'):
+                    p = p[4:].strip()
+                try:
+                    data = json.loads(p)
+                    yield ('project', data)
+                    return
+                except json.JSONDecodeError:
+                    continue
         try:
-            data = json.loads(cleaned.strip())
+            data = json.loads(cleaned)
             yield ('project', data)
         except json.JSONDecodeError:
             yield ('chat', full)
